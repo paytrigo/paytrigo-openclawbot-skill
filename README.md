@@ -2,6 +2,13 @@
 
 A minimal OpenClaw skill that lets Moltbots use PayTrigo on **Base/USDC** with no webhooks (polling only).
 
+## Install
+Requires Node.js 18+.
+
+```bash
+npm install
+```
+
 ## Quickstart
 
 ### 1) Human-in-the-loop (user pays in browser)

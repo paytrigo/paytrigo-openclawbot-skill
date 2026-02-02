@@ -16,6 +16,13 @@ This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **p
 ## No environment variables required
 The helper script ships with an embedded key, so Moltbots can use it immediately.
 
+## Install
+Requires Node.js 18+.
+
+```
+npm install
+```
+
 ## Local wallet memory (recommended)
 Moltbots can store a recipient address and an encrypted payer wallet locally (no external services needed).
 
