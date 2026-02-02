@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
 const API_BASE = 'https://api.paytrigo.net';
 const API_KEY = 'sk_live_EQRe18nZCjXZSv8BmSJMs5mYvMOw1wgDd2RHnOH5T28';
@@ -37,6 +39,9 @@ const parseArgs = (input) => {
 
 const args = parseArgs(argv);
 
+const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
+
 const fail = (message) => {
   console.error(message);
   process.exit(1);
@@ -47,6 +52,35 @@ const requireArg = (key) => {
     fail(`Missing --${key}`);
   }
   return args[key];
+};
+
+const readOptionalFile = async (path) => {
+  try {
+    return await readFile(path, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return null;
+    }
+    fail(`Failed to read ${path}: ${error.message}`);
+    return null;
+  }
+};
+
+const getRecipientAddress = async () => {
+  if (args.recipient) {
+    return args.recipient;
+  }
+  const storeDir = args['store-dir'] ?? DEFAULT_STORE_DIR;
+  const recipientFile = args['recipient-file'] ?? resolve(storeDir, DEFAULT_RECIPIENT_FILE);
+  const contents = await readOptionalFile(recipientFile);
+  if (!contents) {
+    fail('Missing --recipient (or set --recipient-file / .moltbot/recipient.txt)');
+  }
+  const value = contents.trim();
+  if (!value) {
+    fail('Recipient file is empty.');
+  }
+  return value;
 };
 
 const request = async (method, path, body, headers) => {
@@ -70,10 +104,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const usage = () => {
   console.log(`Usage:
-  human --amount 0.001 --recipient 0xYourWallet [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20]
+  human --amount 0.001 [--recipient 0xYourWallet] [--recipient-file ./recipient.txt] [--store-dir .moltbot] [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20]
 
 Example:
   node scripts/moltbot-human-flow.mjs human --amount 0.001 --recipient 0xYourWallet
+  node scripts/moltbot-human-flow.mjs human --amount 0.001 --store-dir .moltbot
 `);
 };
 
@@ -88,7 +123,7 @@ const run = async () => {
   }
 
   const amount = requireArg('amount');
-  const recipientAddress = requireArg('recipient');
+  const recipientAddress = await getRecipientAddress();
   const ttlSeconds = args.ttl ? Number(args.ttl) : undefined;
   const pollSeconds = args.poll ? Number(args.poll) : 5;
   const maxMinutes = args['max-minutes'] ? Number(args['max-minutes']) : 20;

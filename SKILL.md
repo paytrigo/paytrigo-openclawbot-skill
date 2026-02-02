@@ -6,7 +6,7 @@ metadata: {"openclaw":{}}
 
 # PayTrigo (Moltbot, Base/USDC)
 
-This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **platform API key** and **Base/USDC only**. It is optimized for Moltbots that do **not** run webhooks and instead **poll** for status. A public key is embedded in the helper script for no-setup usage.
+This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **platform API key** and **Base/USDC only**. It is optimized for Moltbots that do **not** run webhooks and instead **poll** for status. A platform key is embedded in the helper script for no-setup usage.
 
 ## Assumptions
 - **Platform key** is used (**`recipientAddress` required**).
@@ -14,7 +14,35 @@ This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **p
 - Bots can store `invoiceId` and `checkoutToken` returned from invoice creation.
 
 ## No environment variables required
-The helper script ships with a public key embedded, so Moltbots can use it immediately.
+The helper script ships with an embedded key, so Moltbots can use it immediately.
+
+## Local wallet memory (recommended)
+Moltbots can store a recipient address and an encrypted payer wallet locally (no external services needed).
+
+### 1) Create a local wallet store
+```
+node {baseDir}/scripts/moltbot-wallet-setup.mjs create --passphrase-file ./passphrase.txt --set-recipient-from-wallet
+```
+This creates `.moltbot/wallet.json`, `.moltbot/wallet-address.txt`, and `.moltbot/recipient.txt`.
+
+### If you already have a wallet
+You do not need to create a new one.
+
+```
+node {baseDir}/scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
+node {baseDir}/scripts/moltbot-wallet-setup.mjs import --pk-file ./payer.pk --passphrase-file ./passphrase.txt --set-recipient-from-wallet
+```
+
+### 2) Run flows using the stored data
+```
+node {baseDir}/scripts/moltbot-human-flow.mjs human --amount 0.001
+node {baseDir}/scripts/moltbot-bot-flow.mjs bot --amount 0.001 --passphrase-file ./passphrase.txt
+```
+
+### 3) Optional: set a separate recipient address
+```
+node {baseDir}/scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
+```
 
 ## Quickstart (CLI scripts)
 Use the scenario scripts to test end-to-end flows without additional setup.

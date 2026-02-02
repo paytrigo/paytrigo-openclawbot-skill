@@ -19,6 +19,43 @@ node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xYourWallet...
 - Submits txHash to PayTrigo
 - Polls until final status
 
+## Local wallet store (recommended)
+This is the easiest way for a Moltbot to "remember" a wallet locally without external services.
+
+### 1) Create a passphrase file (local only)
+```bash
+echo "use-a-strong-passphrase" > passphrase.txt
+chmod 600 passphrase.txt
+```
+
+### 2) Create a wallet (optionally set it as recipient)
+```bash
+node scripts/moltbot-wallet-setup.mjs create --passphrase-file ./passphrase.txt --set-recipient-from-wallet
+```
+This creates `.moltbot/wallet.json`, `.moltbot/wallet-address.txt`, and `.moltbot/recipient.txt`.
+
+### If you already have a wallet
+You do not need to create a new one.
+
+```bash
+# Save an existing recipient address
+node scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
+
+# Import an existing private key into the encrypted wallet store
+node scripts/moltbot-wallet-setup.mjs import --pk-file ./payer.pk --passphrase-file ./passphrase.txt --set-recipient-from-wallet
+```
+
+### 3) Run flows using the stored data
+```bash
+node scripts/moltbot-human-flow.mjs human --amount 0.001
+node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --passphrase-file ./passphrase.txt
+```
+
+### Alternative: set a separate recipient address
+```bash
+node scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
+```
+
 ## Options
 - `--ttl 900` : invoice TTL in seconds
 - `--metadata '{"botId":"moltbot_123"}'` : metadata JSON
@@ -26,23 +63,26 @@ node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xYourWallet...
 - `--max-minutes 20` : max polling time (minutes)
 - `--rpc https://mainnet.base.org` : Base RPC endpoint
 - `--skip-approve` : skip approve if already approved
+- `--store-dir .moltbot` : local store dir (default for recipient + wallet files)
+- `--recipient-file ./recipient.txt` : read recipient address from a file
+- `--wallet-file ./wallet.json` : encrypted wallet file for bot-pay
+- `--passphrase-file ./passphrase.txt` : decrypt wallet for bot-pay
 
 ## Wallet / PK setup
 
 ### Recipient wallet (required)
-You must pass `--recipient` on every run (platform key requirement).
+You must provide a recipient address (platform key requirement). You can pass `--recipient` or store it locally.
 
 ```bash
-echo "0xYourWallet" > recipient.txt
-node scripts/moltbot-human-flow.mjs human --amount 0.001 --recipient "$(cat recipient.txt)"
+node scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
+node scripts/moltbot-human-flow.mjs human --amount 0.001
 ```
 
 ### Payer private key (optional; only for bot-pay)
-Store locally and never commit it.
+Store locally and never commit it. Prefer encrypted wallet files instead of raw PKs.
 
 ```bash
-echo "0xYOUR_PRIVATE_KEY" > payer.pk
-node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient "$(cat recipient.txt)" --pk "$(cat payer.pk)"
+node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --pk 0xYOUR_PRIVATE_KEY
 ```
 
 ## Success criteria

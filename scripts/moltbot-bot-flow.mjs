@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { JsonRpcProvider, Wallet } from 'ethers';
 
 const API_BASE = 'https://api.paytrigo.net';
@@ -39,6 +41,10 @@ const parseArgs = (input) => {
 
 const args = parseArgs(argv);
 
+const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
+const DEFAULT_WALLET_FILE = 'wallet.json';
+
 const fail = (message) => {
   console.error(message);
   process.exit(1);
@@ -49,6 +55,72 @@ const requireArg = (key) => {
     fail(`Missing --${key}`);
   }
   return args[key];
+};
+
+const readOptionalFile = async (path) => {
+  try {
+    return await readFile(path, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return null;
+    }
+    fail(`Failed to read ${path}: ${error.message}`);
+    return null;
+  }
+};
+
+const readRequiredFile = async (path) => {
+  const contents = await readOptionalFile(path);
+  if (!contents) {
+    fail(`Missing file: ${path}`);
+  }
+  return contents;
+};
+
+const getRecipientAddress = async () => {
+  if (args.recipient) {
+    return args.recipient;
+  }
+  const storeDir = args['store-dir'] ?? DEFAULT_STORE_DIR;
+  const recipientFile = args['recipient-file'] ?? resolve(storeDir, DEFAULT_RECIPIENT_FILE);
+  const contents = await readOptionalFile(recipientFile);
+  if (!contents) {
+    fail('Missing --recipient (or set --recipient-file / .moltbot/recipient.txt)');
+  }
+  const value = contents.trim();
+  if (!value) {
+    fail('Recipient file is empty.');
+  }
+  return value;
+};
+
+const getPassphrase = async () => {
+  if (args['passphrase-file']) {
+    const value = (await readRequiredFile(args['passphrase-file'])).trimEnd();
+    if (!value) {
+      fail('Passphrase file is empty.');
+    }
+    return value;
+  }
+  if (args.passphrase) {
+    return args.passphrase;
+  }
+  fail('Missing --passphrase or --passphrase-file (required to decrypt wallet)');
+  return '';
+};
+
+const getWallet = async () => {
+  if (args.pk) {
+    return new Wallet(args.pk);
+  }
+  const storeDir = args['store-dir'] ?? DEFAULT_STORE_DIR;
+  const walletFile = args['wallet-file'] ?? resolve(storeDir, DEFAULT_WALLET_FILE);
+  const walletJson = await readOptionalFile(walletFile);
+  if (!walletJson) {
+    fail('Missing --pk (or set --wallet-file / .moltbot/wallet.json)');
+  }
+  const passphrase = await getPassphrase();
+  return Wallet.fromEncryptedJson(walletJson, passphrase);
 };
 
 const request = async (method, path, body, headers) => {
@@ -72,10 +144,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const usage = () => {
   console.log(`Usage:
-  bot --amount 0.001 --recipient 0xSellerWallet --pk 0xPRIVATE_KEY [--rpc https://mainnet.base.org] [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20] [--skip-approve]
+  bot --amount 0.001 [--recipient 0xSellerWallet] [--recipient-file ./recipient.txt] [--store-dir .moltbot] (--pk 0xPRIVATE_KEY | --wallet-file ./wallet.json --passphrase <secret> | --passphrase-file ./passphrase.txt) [--rpc https://mainnet.base.org] [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20] [--skip-approve]
 
 Example:
   node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xSellerWallet --pk 0x...
+  node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --store-dir .moltbot --passphrase-file ./passphrase.txt
 `);
 };
 
@@ -102,8 +175,7 @@ const run = async () => {
   }
 
   const amount = requireArg('amount');
-  const recipientAddress = requireArg('recipient');
-  const privateKey = requireArg('pk');
+  const recipientAddress = await getRecipientAddress();
   const rpcUrl = args.rpc ?? DEFAULT_RPC;
   const ttlSeconds = args.ttl ? Number(args.ttl) : undefined;
   const pollSeconds = args.poll ? Number(args.poll) : 5;
@@ -155,7 +227,7 @@ const run = async () => {
   );
 
   const provider = new JsonRpcProvider(rpcUrl);
-  const wallet = new Wallet(privateKey, provider);
+  const wallet = (await getWallet()).connect(provider);
 
   if (!skipApprove && intent.steps?.approve) {
     await sendStep(wallet, intent.steps.approve, 'approve');
