@@ -1,6 +1,6 @@
 # paytrigo-openclawbot-skill
 
-A minimal OpenClaw skill that lets Moltbots use PayTrigo on **Base/USDC** with no webhooks (polling only).
+A minimal OpenClaw skill that lets OpenClawBots use PayTrigo on **Base/USDC** with no webhooks (polling only).
 
 ## Install
 Requires Node.js 18+.
@@ -27,7 +27,7 @@ node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xYourWallet...
 - Polls until final status
 
 ## Local wallet store (recommended)
-This is the easiest way for a Moltbot to "remember" a wallet locally without external services.
+This is the easiest way for an OpenClawBot to "remember" a wallet locally without external services.
 
 ### 1) Create a passphrase file (local only)
 ```bash
@@ -39,7 +39,7 @@ chmod 600 passphrase.txt
 ```bash
 node scripts/moltbot-wallet-setup.mjs create --passphrase-file ./passphrase.txt --set-recipient-from-wallet
 ```
-This creates `.moltbot/wallet.json`, `.moltbot/wallet-address.txt`, and `.moltbot/recipient.txt`.
+This creates `.openclawbot/wallet.json`, `.openclawbot/wallet-address.txt`, and `.openclawbot/recipient.txt`.
 
 ### If you already have a wallet
 You do not need to create a new one.
@@ -65,12 +65,12 @@ node scripts/moltbot-wallet-setup.mjs recipient --address 0xYourWallet
 
 ## Options
 - `--ttl 900` : invoice TTL in seconds
-- `--metadata '{"botId":"moltbot_123"}'` : metadata JSON
+- `--metadata '{"botId":"openclawbot_123"}'` : metadata JSON
 - `--poll 5` : polling interval (seconds)
 - `--max-minutes 20` : max polling time (minutes)
 - `--rpc https://mainnet.base.org` : Base RPC endpoint
 - `--skip-approve` : skip approve if already approved
-- `--store-dir .moltbot` : local store dir (default for recipient + wallet files)
+- `--store-dir .openclawbot` : local store dir (default for recipient + wallet files)
 - `--recipient-file ./recipient.txt` : read recipient address from a file
 - `--wallet-file ./wallet.json` : encrypted wallet file for bot-pay
 - `--passphrase-file ./passphrase.txt` : decrypt wallet for bot-pay

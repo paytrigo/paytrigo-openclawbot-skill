@@ -1,12 +1,12 @@
 ---
-name: paytrigo-moltbot
-description: Use when a Moltbot needs to create or verify PayTrigo payments on Base/USDC without webhooks.
+name: paytrigo-openclawbot
+description: Use when an OpenClawBot needs to create or verify PayTrigo payments on Base/USDC without webhooks.
 metadata: {"openclaw":{}}
 ---
 
-# PayTrigo (Moltbot, Base/USDC)
+# PayTrigo (OpenClawBot, Base/USDC)
 
-This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **platform API key** and **Base/USDC only**. It is optimized for Moltbots that do **not** run webhooks and instead **poll** for status. A platform key is embedded in the helper script for no-setup usage.
+This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **platform API key** and **Base/USDC only**. It is optimized for OpenClawBots that do **not** run webhooks and instead **poll** for status. A platform key is embedded in the helper script for no-setup usage.
 
 ## Assumptions
 - **Platform key** is used (**`recipientAddress` required**).
@@ -14,7 +14,7 @@ This skill provides a minimal, bot-friendly payment flow on PayTrigo using a **p
 - Bots can store `invoiceId` and `checkoutToken` returned from invoice creation.
 
 ## No environment variables required
-The helper script ships with an embedded key, so Moltbots can use it immediately.
+The helper script ships with an embedded key, so OpenClawBots can use it immediately.
 
 ## Install
 Requires Node.js 18+.
@@ -24,13 +24,13 @@ npm install
 ```
 
 ## Local wallet memory (recommended)
-Moltbots can store a recipient address and an encrypted payer wallet locally (no external services needed).
+OpenClawBots can store a recipient address and an encrypted payer wallet locally (no external services needed).
 
 ### 1) Create a local wallet store
 ```
 node {baseDir}/scripts/moltbot-wallet-setup.mjs create --passphrase-file ./passphrase.txt --set-recipient-from-wallet
 ```
-This creates `.moltbot/wallet.json`, `.moltbot/wallet-address.txt`, and `.moltbot/recipient.txt`.
+This creates `.openclawbot/wallet.json`, `.openclawbot/wallet-address.txt`, and `.openclawbot/recipient.txt`.
 
 ### If you already have a wallet
 You do not need to create a new one.
@@ -64,7 +64,7 @@ node {baseDir}/scripts/moltbot-human-flow.mjs human --amount 0.001 --recipient 0
 node {baseDir}/scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xYourWallet... --pk 0xPRIVATE_KEY
 ```
 
-See `README.md` in this folder for a short Moltbot-focused guide.
+See `README.md` in this folder for a short OpenClawBot-focused guide.
 
 ## Core flow (Human-in-the-loop)
 1) **Create invoice** (platform key, Base/USDC, recipientAddress required)
@@ -98,7 +98,7 @@ See `README.md` in this folder for a short Moltbot-focused guide.
   "amount": "49.99",
   "recipientAddress": "0xYourWallet...",
   "ttlSeconds": 900,
-  "metadata": { "botId": "moltbot_123", "purpose": "checkout" }
+  "metadata": { "botId": "openclawbot_123", "purpose": "checkout" }
 }
 ```
 

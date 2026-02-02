@@ -39,7 +39,7 @@ const parseArgs = (input) => {
 const args = parseArgs(argv.slice(1));
 const API_KEY = DEFAULT_API_KEY;
 
-const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_STORE_DIR = '.openclawbot';
 const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
 
 const fail = (message) => {
@@ -74,7 +74,7 @@ const getRecipientAddress = async () => {
   const recipientFile = args['recipient-file'] ?? resolve(storeDir, DEFAULT_RECIPIENT_FILE);
   const contents = await readOptionalFile(recipientFile);
   if (!contents) {
-    fail('Missing --recipient (or set --recipient-file / .moltbot/recipient.txt)');
+    fail('Missing --recipient (or set --recipient-file / .openclawbot/recipient.txt)');
   }
   const value = contents.trim();
   if (!value) {
@@ -118,7 +118,7 @@ const baseToken = args.token ?? 'usdc';
 const run = async () => {
   if (!command || command === 'help') {
     console.log(`Usage:
-  create --amount 49.99 [--recipient 0x...] [--recipient-file ./recipient.txt] [--store-dir .moltbot] [--ttl 900] [--metadata '{"botId":"moltbot_123"}']
+  create --amount 49.99 [--recipient 0x...] [--recipient-file ./recipient.txt] [--store-dir .openclawbot] [--ttl 900] [--metadata '{"botId":"openclawbot_123"}']
   intent --invoice inv_... --checkout-token chk_...
   submit --invoice inv_... --checkout-token chk_... --tx 0x... [--payer 0x...]
   status --invoice inv_... --checkout-token chk_...

@@ -36,7 +36,7 @@ const parseArgs = (input) => {
 
 const args = parseArgs(argv.slice(1));
 
-const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_STORE_DIR = '.openclawbot';
 const DEFAULT_WALLET_FILE = 'wallet.json';
 const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
 const DEFAULT_ADDRESS_FILE = 'wallet-address.txt';
@@ -97,11 +97,11 @@ const getPassphrase = async () => {
 
 const usage = () => {
   console.log(`Usage:
-  create --passphrase <secret> [--out-dir .moltbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
-  create --passphrase-file ./passphrase.txt [--out-dir .moltbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
-  import --pk 0xPRIVATE_KEY --passphrase <secret> [--out-dir .moltbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
-  import --pk-file ./payer.pk --passphrase-file ./passphrase.txt [--out-dir .moltbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
-  recipient --address 0x... [--out-dir .moltbot] [--recipient-file recipient.txt]
+  create --passphrase <secret> [--out-dir .openclawbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
+  create --passphrase-file ./passphrase.txt [--out-dir .openclawbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
+  import --pk 0xPRIVATE_KEY --passphrase <secret> [--out-dir .openclawbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
+  import --pk-file ./payer.pk --passphrase-file ./passphrase.txt [--out-dir .openclawbot] [--wallet-file wallet.json] [--address-file wallet-address.txt] [--recipient 0x...] [--set-recipient-from-wallet] [--force]
+  recipient --address 0x... [--out-dir .openclawbot] [--recipient-file recipient.txt]
 
 Examples:
   node scripts/moltbot-wallet-setup.mjs create --passphrase-file ./passphrase.txt --set-recipient-from-wallet

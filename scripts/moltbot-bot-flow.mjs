@@ -41,7 +41,7 @@ const parseArgs = (input) => {
 
 const args = parseArgs(argv);
 
-const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_STORE_DIR = '.openclawbot';
 const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
 const DEFAULT_WALLET_FILE = 'wallet.json';
 
@@ -85,7 +85,7 @@ const getRecipientAddress = async () => {
   const recipientFile = args['recipient-file'] ?? resolve(storeDir, DEFAULT_RECIPIENT_FILE);
   const contents = await readOptionalFile(recipientFile);
   if (!contents) {
-    fail('Missing --recipient (or set --recipient-file / .moltbot/recipient.txt)');
+    fail('Missing --recipient (or set --recipient-file / .openclawbot/recipient.txt)');
   }
   const value = contents.trim();
   if (!value) {
@@ -117,7 +117,7 @@ const getWallet = async () => {
   const walletFile = args['wallet-file'] ?? resolve(storeDir, DEFAULT_WALLET_FILE);
   const walletJson = await readOptionalFile(walletFile);
   if (!walletJson) {
-    fail('Missing --pk (or set --wallet-file / .moltbot/wallet.json)');
+    fail('Missing --pk (or set --wallet-file / .openclawbot/wallet.json)');
   }
   const passphrase = await getPassphrase();
   return Wallet.fromEncryptedJson(walletJson, passphrase);
@@ -144,11 +144,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const usage = () => {
   console.log(`Usage:
-  bot --amount 0.001 [--recipient 0xSellerWallet] [--recipient-file ./recipient.txt] [--store-dir .moltbot] (--pk 0xPRIVATE_KEY | --wallet-file ./wallet.json --passphrase <secret> | --passphrase-file ./passphrase.txt) [--rpc https://mainnet.base.org] [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20] [--skip-approve]
+  bot --amount 0.001 [--recipient 0xSellerWallet] [--recipient-file ./recipient.txt] [--store-dir .openclawbot] (--pk 0xPRIVATE_KEY | --wallet-file ./wallet.json --passphrase <secret> | --passphrase-file ./passphrase.txt) [--rpc https://mainnet.base.org] [--ttl 900] [--metadata '{"botId":"openclawbot_123"}'] [--poll 5] [--max-minutes 20] [--skip-approve]
 
 Example:
   node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --recipient 0xSellerWallet --pk 0x...
-  node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --store-dir .moltbot --passphrase-file ./passphrase.txt
+  node scripts/moltbot-bot-flow.mjs bot --amount 0.001 --store-dir .openclawbot --passphrase-file ./passphrase.txt
 `);
 };
 

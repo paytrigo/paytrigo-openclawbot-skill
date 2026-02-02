@@ -39,7 +39,7 @@ const parseArgs = (input) => {
 
 const args = parseArgs(argv);
 
-const DEFAULT_STORE_DIR = '.moltbot';
+const DEFAULT_STORE_DIR = '.openclawbot';
 const DEFAULT_RECIPIENT_FILE = 'recipient.txt';
 
 const fail = (message) => {
@@ -74,7 +74,7 @@ const getRecipientAddress = async () => {
   const recipientFile = args['recipient-file'] ?? resolve(storeDir, DEFAULT_RECIPIENT_FILE);
   const contents = await readOptionalFile(recipientFile);
   if (!contents) {
-    fail('Missing --recipient (or set --recipient-file / .moltbot/recipient.txt)');
+    fail('Missing --recipient (or set --recipient-file / .openclawbot/recipient.txt)');
   }
   const value = contents.trim();
   if (!value) {
@@ -104,11 +104,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const usage = () => {
   console.log(`Usage:
-  human --amount 0.001 [--recipient 0xYourWallet] [--recipient-file ./recipient.txt] [--store-dir .moltbot] [--ttl 900] [--metadata '{"botId":"moltbot_123"}'] [--poll 5] [--max-minutes 20]
+  human --amount 0.001 [--recipient 0xYourWallet] [--recipient-file ./recipient.txt] [--store-dir .openclawbot] [--ttl 900] [--metadata '{"botId":"openclawbot_123"}'] [--poll 5] [--max-minutes 20]
 
 Example:
   node scripts/moltbot-human-flow.mjs human --amount 0.001 --recipient 0xYourWallet
-  node scripts/moltbot-human-flow.mjs human --amount 0.001 --store-dir .moltbot
+  node scripts/moltbot-human-flow.mjs human --amount 0.001 --store-dir .openclawbot
 `);
 };
 
